@@ -1,0 +1,9 @@
+- name: Create an AWS S3 Bucket
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Create Bucket
+      amazon.aws.s3_bucket:
+        name: my-unique-spacelift-test-bucket-99909  # Change this name if it's taken
+        state: present
+        region: us-east-1
