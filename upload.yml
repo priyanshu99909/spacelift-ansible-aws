@@ -2,16 +2,28 @@
   hosts: localhost
   connection: local
   tasks:
+    - name: Get Bucket Name from Env
+      set_fact:
+        target_bucket: "{{ lookup('env', 'CREATED_S3_BUCKET_NAME') }}"
+
+    - name: Debug - Show the bucket name
+      debug:
+        msg: "The bucket name being used is: '{{ target_bucket }}'"
+
+    - name: Fail if bucket name is empty
+      fail:
+        msg: "The bucket name is empty! Please check Spacelift Dependencies mapping."
+      when: target_bucket | length < 3
+
     - name: Create a local dummy file
       copy:
-        content: "This file was created by Ansible and uploaded to a Terraform-managed bucket!"
+        content: "Hello! This was uploaded via Ansible to a bucket named {{ target_bucket }}"
         dest: "/tmp/spacelift_report.txt"
 
     - name: Upload file to S3
       amazon.aws.s3_object:
-        # This matches the environment variable name from your Spacelift Dependency
-        bucket: "{{ lookup('env', 'CREATED_S3_BUCKET_NAME') }}"
+        bucket: "{{ target_bucket }}"
         object: "uploads/ansible_file.txt"
         src: "/tmp/spacelift_report.txt"
-        mode: put  # <--- THIS IS THE FIX. It must be 'put'
-        region: "us-west-2"  # Make sure this matches your TF region
+        mode: put
+        region: "us-west-2"
