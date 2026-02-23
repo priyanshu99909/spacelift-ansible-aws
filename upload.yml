@@ -1,0 +1,17 @@
+- name: Upload File to Terraform Bucket
+  hosts: localhost
+  connection: local
+  vars:
+    # This grabs the value Spacelift provided from the Terraform Output
+    bucket_name: "{{ lookup('env', 'CREATED_S3_BUCKET_NAME') }}"
+
+  tasks:
+    - name: Create a local dummy file
+      copy:
+        content: "File created by Ansible in a bucket managed by Terraform!"
+        dest: "./spacelift_report.txt"
+
+    - name: Upload file to S3
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name }}"
+        object: "uploads/ansible_file.txt"
