@@ -1,17 +1,17 @@
 - name: Upload File to Terraform Bucket
   hosts: localhost
   connection: local
-  vars:
-    # This grabs the value Spacelift provided from the Terraform Output
-    bucket_name: "{{ lookup('env', 'CREATED_S3_BUCKET_NAME') }}"
-
   tasks:
     - name: Create a local dummy file
       copy:
-        content: "File created by Ansible in a bucket managed by Terraform!"
-        dest: "./spacelift_report.txt"
+        content: "This file was created by Ansible and uploaded to a Terraform-managed bucket!"
+        dest: "/tmp/spacelift_report.txt"
 
     - name: Upload file to S3
       amazon.aws.s3_object:
-        bucket: "{{ bucket_name }}"
+        # This matches the environment variable name from your Spacelift Dependency
+        bucket: "{{ lookup('env', 'CREATED_S3_BUCKET_NAME') }}"
         object: "uploads/ansible_file.txt"
+        src: "/tmp/spacelift_report.txt"
+        mode: put  # <--- THIS IS THE FIX. It must be 'put'
+        region: "us-west-2"  # Make sure this matches your TF region
