@@ -1,9 +1,10 @@
-- name: Create an AWS S3 Bucket
+- name: Delete the AWS S3 Bucket
   hosts: localhost
   connection: local
   tasks:
-    - name: Create Bucket
+    - name: Remove Bucket
       amazon.aws.s3_bucket:
-        name: my-unique-spacelift-test-bucket-99909  # Change this name if it's taken
-        state: absent
+        name: my-unique-spacelift-test-bucket-99909
+        state: absent  # <--- This tells AWS to delete it
+        force: true    # <--- This ensures it deletes even if there are files inside
         region: us-east-1
